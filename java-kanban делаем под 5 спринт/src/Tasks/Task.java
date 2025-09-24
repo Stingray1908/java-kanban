@@ -50,7 +50,7 @@ public class Task {
         }else {statusTask = "IN_PROGRESS";
         }
 
-        return "Название - " + name + ". Статус - " + statusTask + ", ID - " + id;
+        return "\nНазвание - " + name + ". Статус - " + statusTask + ", ID - " + id;
     }
 
     public String getName() {

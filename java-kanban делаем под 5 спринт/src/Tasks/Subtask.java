@@ -20,7 +20,9 @@ public class Subtask extends Task {
     }
 
     public void setEpicKey(int epicKey) {
-        this.epicKey = epicKey;
+        if (!(epicKey == this.getId())) {
+            this.epicKey = epicKey;
+        }
     }
 
     public String toString() {

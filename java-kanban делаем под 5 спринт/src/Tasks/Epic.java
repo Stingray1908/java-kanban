@@ -12,7 +12,7 @@ public class Epic extends Task {
 
     public Epic(String name, int id) {
         super(name);
-        this.setId(id);    //поставить статус
+        this.setId(id);
     }
 
     public ArrayList<Integer> getSubtasksList() {
@@ -20,8 +20,10 @@ public class Epic extends Task {
     }
 
     public void setSubtasksList(ArrayList<Integer> subtasksList) {
-        this.subtasksList = subtasksList;
-        this.setDescription();
+        if (!(subtasksList.contains(this.getId()))) {
+            this.subtasksList = subtasksList;
+            this.setDescription();
+        }
     }
 
     public String toString() {

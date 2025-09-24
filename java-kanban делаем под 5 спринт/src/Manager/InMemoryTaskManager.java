@@ -7,14 +7,27 @@ import Tasks.Task;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 
-public  class TaskManager {
+public  class InMemoryTaskManager implements TaskManager {
+
+    private HistoryManager history;
+
+    public InMemoryTaskManager() {
+    }
+
+    public InMemoryTaskManager(HistoryManager history) {
+        this.history = history;
+    }
+
     private HashMap<Integer, Task> mapTasks = new HashMap<>();
     private HashMap<Integer, Epic> mapEpics = new HashMap<>();
     private HashMap<Integer, Subtask> mapSubtasks = new HashMap<>();
 
+
     private int counter = 0;
 
+    @Override
     public ArrayList<Task> getListTasks() {
         if (!(mapTasks.isEmpty())) {
             return new ArrayList<>(mapTasks.values());
@@ -22,6 +35,7 @@ public  class TaskManager {
         return new ArrayList<>();
     }
 
+    @Override
     public ArrayList<Epic> getListEpics() {
         if (!(mapEpics.isEmpty())) {
             return new ArrayList<>(mapEpics.values());
@@ -29,6 +43,7 @@ public  class TaskManager {
         return new ArrayList<>();
     }
 
+    @Override
     public ArrayList<Subtask> getListSubtasks() {
         if (!(mapSubtasks.isEmpty())) {
             return new ArrayList<>(mapSubtasks.values());
@@ -36,6 +51,7 @@ public  class TaskManager {
         return new ArrayList<>();
     }
 
+    @Override
     public HashMap<Integer, Task> clearTasks() {
         if (!(mapTasks.isEmpty())) {
             mapTasks.clear();
@@ -43,6 +59,7 @@ public  class TaskManager {
         return mapTasks;
     }
 
+    @Override
     public HashMap<Integer, Epic> clearEpics() {
         if (!(mapEpics.isEmpty())) {
             if (!(mapSubtasks.isEmpty())) {
@@ -55,6 +72,7 @@ public  class TaskManager {
         return mapEpics;
     }
 
+    @Override
     public HashMap<Integer, Subtask> clearSubtasks() {
         if (!(mapEpics.isEmpty())) {
             if (!(mapSubtasks.isEmpty())) {
@@ -73,28 +91,37 @@ public  class TaskManager {
     }
 
 
+    @Override
     public Task getTaskByIdentifier(int identifier) {
         if (!(mapTasks.isEmpty()) && mapTasks.containsKey(identifier)) {
-            return mapTasks.get(identifier);
+            Task task =  mapTasks.get(identifier);
+            setHistory(task);
+            return task;
         }
         return null;
     }
 
+    @Override
     public Epic getEpicByIdentifier(int identifier) {
         if (!(mapEpics.isEmpty()) && mapEpics.containsKey(identifier)) {
-            return mapEpics.get(identifier);
+            Epic epic =  mapEpics.get(identifier);
+            setHistory(epic);
+            return epic;
         }
         return null;
     }
 
+    @Override
     public Subtask getSubtaskByIdentifier(int identifier) {
         if (!(mapSubtasks.isEmpty()) && mapSubtasks.containsKey(identifier)) {
-            return mapSubtasks.get(identifier);
+            Subtask subtask = mapSubtasks.get(identifier);
+            setHistory(subtask);
+            return subtask;
         }
         return null;
     }
 
-
+    @Override
     public Task removeTaskByIdentifier(int identifier) {
         if (!(mapTasks.isEmpty()) && mapTasks.containsKey(identifier)) {
             mapTasks.remove(identifier);
@@ -102,6 +129,7 @@ public  class TaskManager {
         return null;
     }
 
+    @Override
     public Epic removeEpicByIdentifier(int identifier) {
         if (!(mapEpics.isEmpty()) && (mapEpics.containsKey(identifier))) {
             ArrayList<Subtask> listSubtasks = getEpicSubtasks(identifier);
@@ -116,12 +144,13 @@ public  class TaskManager {
         return null;
     }
 
+    @Override
     public Subtask removeSubtaskByIdentifier(Integer identifier) {
         if (!(mapEpics.isEmpty()) && (!(mapSubtasks.isEmpty()) && (mapSubtasks.containsKey(identifier)))) {
-            Subtask subtask = getSubtaskByIdentifier(identifier);
+            Subtask subtask = mapSubtasks.get(identifier);
             int epicKey = subtask.getEpicKey();
             if (mapEpics.containsKey(epicKey)) {
-                Epic epic = getEpicByIdentifier(epicKey);
+                Epic epic = mapEpics.get(epicKey);
                 ArrayList<Integer> listKeys = epic.getSubtasksList();
                 if ((!listKeys.isEmpty()) && (listKeys.contains(identifier))) {
                     listKeys.remove(identifier);
@@ -136,6 +165,7 @@ public  class TaskManager {
     }
 
 
+    @Override
     public Task createNewTasks(Task task) {
         int id = count();
         if (mapTasks.isEmpty() || (!mapTasks.containsKey(id))) {
@@ -146,6 +176,7 @@ public  class TaskManager {
         return null;
     }
 
+    @Override
     public Task upDateTask(Task task) {
         int id = task.getId();
         if ((id <= counter) && (!(mapTasks.isEmpty()) && mapTasks.containsKey(id))) {
@@ -154,6 +185,7 @@ public  class TaskManager {
         return null;
     }
 
+    @Override
     public Epic createNewEpic(Epic epic) {
         int id = count();
         if (mapEpics.isEmpty() || (!(mapEpics.containsKey(id)))) {
@@ -164,6 +196,7 @@ public  class TaskManager {
         return null;
     }
 
+    @Override
     public Epic upDateEpic(Epic epic) {
         int id = epic.getId();
         if ((id <= counter) && (!(mapEpics.isEmpty()) && (mapEpics.containsKey(id)))) {
@@ -173,13 +206,14 @@ public  class TaskManager {
         return null;
     }
 
+    @Override
     public Subtask createNewSubtask(Subtask subtask) {
         int id = count();
         int epicKey = subtask.getEpicKey();
         if (!(mapEpics.isEmpty()) && mapEpics.containsKey(epicKey)) {
             if (((mapSubtasks.isEmpty()) || (!(mapSubtasks.containsKey(id))))) {
                 subtask.setId(id);
-                Epic epic = getEpicByIdentifier(epicKey);
+                Epic epic = mapEpics.get(epicKey);
                 ArrayList<Integer> subtasksList = epic.getSubtasksList();
                 if ((subtasksList.isEmpty()) || (!(subtasksList.contains(id)))) {
                     subtasksList.add(id);
@@ -187,12 +221,14 @@ public  class TaskManager {
                     setNewStatusForEpic(epic);
                     mapEpics.put(epicKey, epic);
                     mapSubtasks.put(id, subtask);
+                    return subtask;
                 }
             }
         }
         return null;
     }
 
+    @Override
     public Subtask upDateSubtask(Subtask subtask) {
         if (!(mapEpics.isEmpty()) && (!(mapSubtasks.isEmpty()))) {
             int iD = subtask.getId();
@@ -201,7 +237,7 @@ public  class TaskManager {
                 ArrayList<Subtask> listSubtasks = getEpicSubtasks(epicKey);
                 if (!(listSubtasks.isEmpty()) && listSubtasks.contains(subtask)) {
                     mapSubtasks.put(iD, subtask);
-                    Epic epic = getEpicByIdentifier(epicKey);
+                    Epic epic = mapEpics.get(epicKey);
                     setNewStatusForEpic(epic);
                     mapEpics.put(epicKey, epic);
                     return subtask;
@@ -211,16 +247,16 @@ public  class TaskManager {
         return null;
     }
 
-
+    @Override
     public ArrayList<Subtask> getEpicSubtasks(int epicID) {
         if (!(mapSubtasks.isEmpty()) && (!(mapEpics.isEmpty())) && (mapEpics.containsKey(epicID))) {
             ArrayList<Subtask> listSubtasks = new ArrayList<>();
-            Epic anotherEpic = getEpicByIdentifier(epicID);
+            Epic anotherEpic = mapEpics.get(epicID);
             ArrayList<Integer> keysFromEpic = anotherEpic.getSubtasksList();
             if (!(keysFromEpic.isEmpty())) {
                 for (Integer subID : keysFromEpic) {
                     if (mapSubtasks.containsKey(subID)) {
-                        Subtask subtask = getSubtaskByIdentifier(subID);
+                        Subtask subtask = mapSubtasks.get(subID);
                         if (epicID == subtask.getEpicKey()) {
                             listSubtasks.add(subtask);
                         }
@@ -232,11 +268,13 @@ public  class TaskManager {
         return new ArrayList<>();
     }
 
-    private int count() {
+    @Override
+    public int count() {
         return counter++;
     }
 
-    private void setNewStatusForEpic(Epic epic) {
+    @Override
+    public void setNewStatusForEpic(Epic epic) {
         ArrayList<Subtask> listID = getEpicSubtasks(epic.getId());
         Status lastStatus;
         if (!(listID.isEmpty())) {
@@ -258,5 +296,16 @@ public  class TaskManager {
         }
         mapEpics.put(epic.getId(), epic);
     }
+
+    @Override
+    public List<Task> getHistory() {
+        return history.getHistory();
+    }
+
+    @Override
+    public <T extends Task> void setHistory(T task) {
+        history.add(task);
+    }
+
 }
 
