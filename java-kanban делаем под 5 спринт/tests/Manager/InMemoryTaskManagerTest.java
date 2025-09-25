@@ -5,11 +5,8 @@ import Tasks.Status;
 import Tasks.Subtask;
 import Tasks.Task;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,8 +27,9 @@ class InMemoryTaskManagerTest {
         }
     }
 
-    @BeforeAll
-    static void beforeALL() {
+    @BeforeEach
+    void beforeEach() {
+        manager = Managers.getDefault();
          task = manager.createNewTasks(new Task("Task"));
          epic = manager.createNewEpic(new Epic("Epic"));
          subtask = manager.createNewSubtask(new Subtask("Subtask", epic.getId()));
@@ -120,13 +118,11 @@ class InMemoryTaskManagerTest {
         Task taskString = manager.getTaskByIdentifier(task.getId());
         Epic epicString = manager.getEpicByIdentifier(epic.getId());
         Subtask subtaskString = manager.getSubtaskByIdentifier(subtask.getId());
-        List<Task> tasks = manager.getHistory();
+        manager.getHistory();
 
-        assertEquals(3, tasks.size(), "после активации поиска по ID, список истории корректно растет");
+        assertEquals(3, manager.getHistory().size());
         assertEquals(taskString.toString(), task.toString(), "данные изменились");
         assertEquals(epicString.toString(), epic.toString(), "данные изменились");
         assertEquals(subtaskString.toString(), subtask.toString(), "данные изменились");
     }
-
-
 }

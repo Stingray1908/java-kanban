@@ -3,7 +3,7 @@ package Manager;
 public class Managers {
 
     static public TaskManager getDefault() {
-        return  new  InMemoryTaskManager(getDefaultHistory());
+        return  new  InMemoryTaskManager();
     }
 
     static public  HistoryManager getDefaultHistory() {

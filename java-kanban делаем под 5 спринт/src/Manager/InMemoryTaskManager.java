@@ -10,14 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public  class InMemoryTaskManager implements TaskManager {
-
-    private HistoryManager history;
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     public InMemoryTaskManager() {
-    }
-
-    public InMemoryTaskManager(HistoryManager history) {
-        this.history = history;
     }
 
     private HashMap<Integer, Task> mapTasks = new HashMap<>();
@@ -76,9 +71,8 @@ public  class InMemoryTaskManager implements TaskManager {
     public HashMap<Integer, Subtask> clearSubtasks() {
         if (!(mapEpics.isEmpty())) {
             if (!(mapSubtasks.isEmpty())) {
-                ArrayList<Subtask> subtasks = new ArrayList<>();
                 for (Integer id : mapEpics.keySet()) {
-                    subtasks = getEpicSubtasks(id);
+                    ArrayList<Subtask> subtasks = getEpicSubtasks(id);
                     if (!(subtasks.isEmpty())) {
                         for (Subtask subtask : subtasks) {
                             removeSubtaskByIdentifier(subtask.getId());
@@ -94,7 +88,7 @@ public  class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTaskByIdentifier(int identifier) {
         if (!(mapTasks.isEmpty()) && mapTasks.containsKey(identifier)) {
-            Task task =  mapTasks.get(identifier);
+            Task task = mapTasks.get(identifier);
             setHistory(task);
             return task;
         }
@@ -104,7 +98,7 @@ public  class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic getEpicByIdentifier(int identifier) {
         if (!(mapEpics.isEmpty()) && mapEpics.containsKey(identifier)) {
-            Epic epic =  mapEpics.get(identifier);
+            Epic epic = mapEpics.get(identifier);
             setHistory(epic);
             return epic;
         }
@@ -269,12 +263,20 @@ public  class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public int count() {
-        return counter++;
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
     }
 
     @Override
-    public void setNewStatusForEpic(Epic epic) {
+    public <T extends Task> void setHistory(T task) {
+        historyManager.add(task);
+    }
+
+    private int count() {
+        return counter++;
+    }
+
+    private void setNewStatusForEpic(Epic epic) {
         ArrayList<Subtask> listID = getEpicSubtasks(epic.getId());
         Status lastStatus;
         if (!(listID.isEmpty())) {
@@ -296,16 +298,4 @@ public  class InMemoryTaskManager implements TaskManager {
         }
         mapEpics.put(epic.getId(), epic);
     }
-
-    @Override
-    public List<Task> getHistory() {
-        return history.getHistory();
-    }
-
-    @Override
-    public <T extends Task> void setHistory(T task) {
-        history.add(task);
-    }
-
 }
-

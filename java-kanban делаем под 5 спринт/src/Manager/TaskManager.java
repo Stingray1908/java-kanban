@@ -23,15 +23,9 @@ public interface TaskManager {
 
     Task getTaskByIdentifier(int identifier);
 
-   // Task getTaskByIdentifier(int identifier, HistoryManager history);
-
     Epic getEpicByIdentifier(int identifier);
 
-    //Epic getEpicByIdentifier(int identifier, HistoryManager history);
-
     Subtask getSubtaskByIdentifier(int identifier);
-
-    //Subtask getSubtaskByIdentifier(int identifier, HistoryManager history);
 
     Task removeTaskByIdentifier(int identifier);
 
@@ -52,10 +46,6 @@ public interface TaskManager {
     Subtask upDateSubtask(Subtask subtask);
 
     ArrayList<Subtask> getEpicSubtasks(int epicID);
-
-    int count();
-
-    void setNewStatusForEpic(Epic epic);
 
     List<Task> getHistory();
 
