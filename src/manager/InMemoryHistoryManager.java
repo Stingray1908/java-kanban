@@ -1,6 +1,6 @@
-package Manager;
+package manager;
 
-import Tasks.Task;
+import tasks.Task;
 
 import java.util.*;
 
@@ -68,7 +68,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (!history.isEmpty()) {
             Node node = tail;
 
-            while(node != null) {
+            while (node != null) {
                 historyArr.add(node.getValue());
                 node = node.getPrevious();
             }

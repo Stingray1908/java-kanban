@@ -1,8 +1,8 @@
-import Manager.InMemoryTaskManager;
-import Manager.TaskManager;
-import Tasks.Epic;
-import Tasks.Subtask;
-import Tasks.Task;
+import manager.InMemoryTaskManager;
+import manager.TaskManager;
+import tasks.Epic;
+import tasks.Subtask;
+import tasks.Task;
 import java.util.List;
 
 public class Main {
@@ -19,11 +19,11 @@ public class Main {
         manager.createNewSubtask(new Subtask("собрать вещи", 2));
         manager.createNewSubtask(new Subtask("купить билет", 2));
         manager.createNewSubtask(new Subtask("залить фундамент", 3));
-        //
+
         //System.out.println(manager.getListEpics());
         //System.out.println(manager.getListSubtasks());
         //System.out.println(manager.getListTasks());
-//
+
         //   manager.upDateTask(new Task("убрать вещи", Status.IN_PROGRESS, 0));
         // manager.upDateTask(new Task("постирать бельё", Status.DONE, 1));
         // manager.getListTasks();
@@ -31,15 +31,16 @@ public class Main {
         //System.out.println(manager.getListEpics());
         //manager.upDateSubtask(new Subtask("купить билет", Status.DONE, 2, 5));
         //System.out.println(manager.getListEpics());
-       // manager.upDateSubtask(new Subtask("залить фундамент", Status.DONE, 3, 6));
+       // manager.upDateSubtask(new Subtask("залить фундамент", Status.DONE,
+        // 3, 6));
 
         manager.getTaskByIdentifier(0);
-        manager.getTaskByIdentifier(1);//1
-        manager.getEpicByIdentifier(2);//2
+        manager.getTaskByIdentifier(1); //1
+        manager.getEpicByIdentifier(2); //2
         manager.getEpicByIdentifier(3);
         manager.getTaskByIdentifier(0);
-        manager.getEpicByIdentifier(3);//3
-        manager.getEpicByIdentifier(4);//4
+        manager.getEpicByIdentifier(3); //3
+        manager.getEpicByIdentifier(4); //4
         manager.getEpicByIdentifier(7);  //7
         manager.getEpicByIdentifier(0);   //0
 
@@ -73,7 +74,7 @@ public class Main {
 //  manager.clearSubtasks();
         //    manager.getListEpics();
 
-        // manager.clearTasks();                                              //Исправить ошибки!!!!
+        // manager.clearTasks();
         //manager.clearSubtasks();
         //manager.clearEpics();
 

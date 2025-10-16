@@ -1,8 +1,8 @@
-package Manager;
+package manager;
 
-import Tasks.Task;
+import tasks.Task;
 
-public class Node{
+public class Node {
 
     private final Task value;
     private Node previous;

@@ -1,21 +1,21 @@
-package Manager;
+package manager;
 
-import Tasks.Epic;
-import Tasks.Status;
-import Tasks.Subtask;
-import Tasks.Task;
+import tasks.Epic;
+import tasks.Status;
+import tasks.Subtask;
+import tasks.Task;
 
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 
-public  class InMemoryTaskManager implements TaskManager {
+public class InMemoryTaskManager implements TaskManager {
 
-    final private HistoryManager historyManager = Managers.getDefaultHistory();
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
-    final private HashMap<Integer, Task> mapTasks = new HashMap<>();
-    final private HashMap<Integer, Epic> mapEpics = new HashMap<>();
-    final private HashMap<Integer, Subtask> mapSubtasks = new HashMap<>();
+    private final HashMap<Integer, Task> mapTasks = new HashMap<>();
+    private final HashMap<Integer, Epic> mapEpics = new HashMap<>();
+    private final HashMap<Integer, Subtask> mapSubtasks = new HashMap<>();
 
 
     private int counter = 0;
@@ -94,8 +94,6 @@ public  class InMemoryTaskManager implements TaskManager {
     }
 
 
-
-
     @Override
     public boolean clearSubtasks() {
         if (!mapEpics.isEmpty() && !mapSubtasks.isEmpty()) {
@@ -165,8 +163,6 @@ public  class InMemoryTaskManager implements TaskManager {
     }
 
 
-
-
     @Override
     public Task createNewTasks(Task task) {
         int id = count();
@@ -217,7 +213,7 @@ public  class InMemoryTaskManager implements TaskManager {
                 subtask.setId(id);
                 Epic epic = mapEpics.get(epicKey);
                 ArrayList<Integer> subtasksList = epic.getSubtasksList();
-                if ((subtasksList.isEmpty()) || (!(subtasksList.contains(id)))) {
+                if (subtasksList.isEmpty() || (!(subtasksList.contains(id)))) {
                     subtasksList.add(id);
                     epic.setSubtasksList(subtasksList);
                     setNewStatusForEpic(epic);
@@ -234,9 +230,11 @@ public  class InMemoryTaskManager implements TaskManager {
         if (!(mapEpics.isEmpty()) && (!(mapSubtasks.isEmpty()))) {
             int iD = subtask.getId();
             int epicKey = subtask.getEpicKey();
-            if (((mapEpics.containsKey(epicKey)) && (mapSubtasks.containsKey(iD)))) {
+            if (((mapEpics.containsKey(epicKey))
+                    && (mapSubtasks.containsKey(iD)))) {
                 ArrayList<Subtask> listSubtasks = getEpicSubtasks(epicKey);
-                if (!(listSubtasks.isEmpty()) && listSubtasks.contains(subtask)) {
+                if (!(listSubtasks.isEmpty())
+                        && listSubtasks.contains(subtask)) {
                     mapSubtasks.put(iD, subtask);
                     Epic epic = mapEpics.get(epicKey);
                     setNewStatusForEpic(epic);
@@ -249,7 +247,8 @@ public  class InMemoryTaskManager implements TaskManager {
 
     @Override
     public ArrayList<Subtask> getEpicSubtasks(int epicID) {
-        if (!(mapSubtasks.isEmpty()) && (!(mapEpics.isEmpty())) && (mapEpics.containsKey(epicID))) {
+        if (!(mapSubtasks.isEmpty()) && (!(mapEpics.isEmpty()))
+                && (mapEpics.containsKey(epicID))) {
             ArrayList<Subtask> listSubtasks = new ArrayList<>();
             Epic anotherEpic = mapEpics.get(epicID);
             ArrayList<Integer> keysFromEpic = anotherEpic.getSubtasksList();
