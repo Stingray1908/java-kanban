@@ -1,13 +1,8 @@
-import Manager.HistoryManager;
 import Manager.InMemoryTaskManager;
-import Manager.Managers;
 import Manager.TaskManager;
 import Tasks.Epic;
-import Tasks.Status;
 import Tasks.Subtask;
 import Tasks.Task;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -48,7 +43,6 @@ public class Main {
         manager.getEpicByIdentifier(7);  //7
         manager.getEpicByIdentifier(0);   //0
 
-        manager.
 
 
 
