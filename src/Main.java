@@ -47,7 +47,7 @@ public class Main {
 
 
         List<Task> list = manager.getHistory();
-        for(Task task : list) {
+        for (Task task : list) {
             System.out.println(task);
         }
 
