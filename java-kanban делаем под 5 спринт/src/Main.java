@@ -7,6 +7,9 @@ import Tasks.Status;
 import Tasks.Subtask;
 import Tasks.Task;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main {
     public static void main(String[] arg) {
 
@@ -29,12 +32,33 @@ public class Main {
         //   manager.upDateTask(new Task("убрать вещи", Status.IN_PROGRESS, 0));
         // manager.upDateTask(new Task("постирать бельё", Status.DONE, 1));
         // manager.getListTasks();
-        manager.upDateSubtask(new Subtask("собрать вещи", Status.DONE, 2, 4));
-        System.out.println(manager.getListEpics());
-        manager.upDateSubtask(new Subtask("купить билет", Status.DONE, 2, 5));
-        System.out.println(manager.getListEpics());
-        manager.upDateSubtask(new Subtask("залить фундамент", Status.DONE, 3, 6));
-        System.out.println(manager.getListEpics());
+        //manager.upDateSubtask(new Subtask("собрать вещи", Status.DONE, 2, 4));
+        //System.out.println(manager.getListEpics());
+        //manager.upDateSubtask(new Subtask("купить билет", Status.DONE, 2, 5));
+        //System.out.println(manager.getListEpics());
+       // manager.upDateSubtask(new Subtask("залить фундамент", Status.DONE, 3, 6));
+
+        manager.getTaskByIdentifier(0);
+        manager.getTaskByIdentifier(1);//1
+        manager.getEpicByIdentifier(2);//2
+        manager.getEpicByIdentifier(3);
+        manager.getTaskByIdentifier(0);
+        manager.getEpicByIdentifier(3);//3
+        manager.getEpicByIdentifier(4);//4
+        manager.getEpicByIdentifier(7);  //7
+        manager.getEpicByIdentifier(0);   //0
+
+        manager.
+
+
+
+        List<Task> list = manager.getHistory();
+        for(Task task : list) {
+            System.out.println(task);
+        }
+
+
+        //System.out.println(manager.getListEpics());
         /*System.out.println(manager.getTaskByIdentifier(0));
         System.out.println(manager.getTaskByIdentifier(1));
         System.out.println(manager.getEpicByIdentifier(2));
@@ -127,5 +151,7 @@ public class Main {
         for (Task task : manager.getHistory()) {
             System.out.println(task);
         }*/
+
+
     }
 }

@@ -14,17 +14,22 @@ class EpicTest {
     Epic epic = taskManager.createNewEpic(new Epic("Epic_1"));
 
     @Test
-    void name() {
+    void shouldDoNotHaveNewCreatedSubtaskWithWrongId() {
         Subtask subtask = new Subtask("(Epic)_Subtask", Status.NEW, epic.getId(), epic.getId());
         assertTrue(epic.getSubtasksList().isEmpty());
     }
 
     @Test
-    void name2() {
+    void ShouldDoNotHaveEpicInEpicSubtasksList() {
         ArrayList<Integer> testList = new ArrayList<>();
         testList.add(epic.getId());
         epic.setSubtasksList(testList);
         assertEquals(0, epic.getSubtasksList().size());
     }
 
+    @Test
+    void shouldDoNotHaveNullPointerExceptionWhenToStringWithEpicNameNull(){
+        Epic epicTest = new Epic(null);
+        System.out.println(epicTest);
+    }
 }
