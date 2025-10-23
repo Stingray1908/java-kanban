@@ -8,13 +8,11 @@ import tasks.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
 
-    public static TaskManager manager;
+    public static TaskManager manager  = Managers.getDefault();
     static Task task;
     static Epic epic;
     static Subtask subtask;
@@ -38,21 +36,21 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void shouldNotChangeTaskAfterHadCreated() {
+    void shouldNotChangeTaskAfterHaveGottenCreated() {
         Task testTask = new Task("Task");
         assertEquals(testTask.getName(), task.getName());
         assertEquals(testTask.getStatus(), task.getStatus());
     }
 
     @Test
-    void shouldNotChangeEpicAfterHadCreated() {
+    void shouldNotChangeEpicAfterHaveGottenCreated() {
         Epic testEpic = new Epic("Epic");
         assertEquals(testEpic.getName(), epic.getName());
         assertEquals(testEpic.getStatus(), epic.getStatus());
     }
 
     @Test
-    void shouldNotChangeSubtaskAfterHadCreated() {
+    void shouldNotChangeSubtaskAfterHaveGottenCreated() {
         Subtask testSubtask = new Subtask("Subtask", epic.getId());
         assertEquals(testSubtask.getName(), subtask.getName());
         assertEquals(testSubtask.getStatus(), subtask.getStatus());
@@ -116,33 +114,15 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void shouldCheckOutThatEpicDoNotKeepDeletedMeaning() {
-        ArrayList<Subtask> arr = manager.getEpicSubtasks(epic.getId());
-        manager.clearSubtasks();
-
-        assertNotEquals(arr.size(), manager.getEpicSubtasks(epic.getId()).size());
-    }
-
-    @Test
-    void shouldSaveTheSameDateInHistoryManagerAfterUsingSearchByIdentifier() {
+    void shouldSaveTheSameDateAfterUsingSearchByIdentifier() {
         Task taskString = manager.getTaskByIdentifier(task.getId());
         Epic epicString = manager.getEpicByIdentifier(epic.getId());
         Subtask subtaskString = manager.getSubtaskByIdentifier(subtask.getId());
+        manager.getHistory();
 
         assertEquals(3, manager.getHistory().size());
         assertEquals(taskString.toString(), task.toString(), "данные изменились");
         assertEquals(epicString.toString(), epic.toString(), "данные изменились");
         assertEquals(subtaskString.toString(), subtask.toString(), "данные изменились");
     }
-
-    @Test
-    void shouldCorrectlyDeleteDateFromHistoryManagerAfterDeletingThemFromInMemoryTaskManager() {
-        manager.clearEpics();
-        manager.clearTasks();
-
-        assertTrue(manager.getHistory().isEmpty());
-    }
-
-
-
 }

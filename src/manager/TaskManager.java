@@ -5,6 +5,7 @@ import tasks.Subtask;
 import tasks.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public interface TaskManager {
@@ -14,11 +15,11 @@ public interface TaskManager {
 
     ArrayList<Subtask> getListSubtasks();
 
-    boolean clearTasks();
+    HashMap<Integer, Task> clearTasks();
 
-    boolean clearEpics();
+    HashMap<Integer, Epic> clearEpics();
 
-    boolean clearSubtasks();
+    HashMap<Integer, Subtask> clearSubtasks();
 
     Task getTaskByIdentifier(int identifier);
 
@@ -26,11 +27,11 @@ public interface TaskManager {
 
     Subtask getSubtaskByIdentifier(int identifier);
 
-    boolean removeTaskByIdentifier(int identifier);
+    Task removeTaskByIdentifier(int identifier);
 
-    boolean removeEpicByIdentifier(int identifier);
+    Epic removeEpicByIdentifier(int identifier);
 
-    boolean removeSubtaskByIdentifier(Integer identifier);
+    Subtask removeSubtaskByIdentifier(Integer identifier);
 
     Task createNewTasks(Task task);
 
