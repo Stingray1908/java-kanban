@@ -41,7 +41,7 @@ public class Task {
     @Override
     public String toString() {
         String statusTask;
-        String aName = name;
+        String aName;
         if (name == null) {
             aName = "null";
         }
@@ -54,8 +54,7 @@ public class Task {
         } else {
             statusTask = "IN_PROGRESS";
         }
-        return "\nНазвание - " + name + ". Статус - " + statusTask + ", ID - "
-                + id;
+        return String.format("\nID: %d, \"%s\", %s", id, name, statusTask);
     }
 
     public String getName() {

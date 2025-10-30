@@ -18,11 +18,11 @@ class TaskTest {
     }
 
     @Test
-    void subtaskShouldBeEqualIfTheSameId () {
+    void subtaskShouldBeEqualIfTheSameId() {
         task1 = new Subtask("Subtask", Status.NEW, 1, 2);
         task2 = new Subtask("Subtask", Status.NEW, 1, 2);
         assertEquals(task1, task2, "false");
-        }
+    }
 
     @Test
     void epicShouldBeEqualIfTheSameId() {

@@ -33,7 +33,7 @@ public class Epic extends Task {
         } else {
             listLength = 0;
         }
-        return super.toString() + ", количество подзадач - " + listLength;
+        return super.toString() + String.format(", подзадач: %d", listLength);
     }
 }
 
