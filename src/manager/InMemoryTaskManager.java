@@ -46,10 +46,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean clearTasks() {
-        if (!(mapTasks.isEmpty())) {
-            for (int id : mapTasks.keySet()) {
-                removeTaskByIdentifier(id);
-            }
+        ArrayList<Integer> arr = new ArrayList<>(mapTasks.keySet());
+        for (int id : arr) {
+            removeTaskByIdentifier(id);
         }
         return mapTasks.isEmpty();
     }
@@ -69,7 +68,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean clearEpics() {
         if (clearSubtasks() && !mapEpics.isEmpty()) {
-            for (int id : mapEpics.keySet()) {
+            ArrayList<Integer> arr = new ArrayList<>(mapEpics.keySet());
+            for (int id : arr) {
                 removeEpicByIdentifier(id);
             }
         }
@@ -79,8 +79,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean removeEpicByIdentifier(int identifier) {
-        if (!(mapTasks.isEmpty()) && (mapEpics.containsKey(identifier))) {
-            ArrayList<Subtask> listSubtasks = getEpicSubtasks(identifier);
+        if (!(mapEpics.isEmpty()) && (mapEpics.containsKey(identifier))) {
+            ArrayList<Subtask> listSubtasks = getEpicSubtasks(identifier); // /////////
             if (!(listSubtasks.isEmpty())) {
                 for (Subtask subtask : listSubtasks) {
                     int id = subtask.getId();
@@ -96,13 +96,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean clearSubtasks() {
-        if (!mapEpics.isEmpty() && !mapSubtasks.isEmpty()) {
-            for (Integer id : mapEpics.keySet()) {
-                ArrayList<Subtask> subtasks = getEpicSubtasks(id);
-                if (!subtasks.isEmpty()) {
-                    for (Subtask subtask : subtasks) {
-                        removeSubtaskByIdentifier(subtask.getId());
-                    }
+        if (mapEpics.isEmpty() && !mapSubtasks.isEmpty()) {
+            return false;
+        }
+        for (Integer id : mapEpics.keySet()) {
+            ArrayList<Subtask> subtasks = getEpicSubtasks(id);
+            if (!subtasks.isEmpty()) {
+                for (Subtask subtask : subtasks) {
+                    removeSubtaskByIdentifier(subtask.getId());
                 }
             }
         }
@@ -112,7 +113,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean removeSubtaskByIdentifier(Integer identifier) {
-        if (!(mapTasks.isEmpty()) && (mapSubtasks.containsKey(identifier))) {
+        if (!(mapEpics.isEmpty()) && (mapSubtasks.containsKey(identifier))) {
             Subtask subtask = mapSubtasks.get(identifier);
             int epicKey = subtask.getEpicKey();
             if (mapEpics.containsKey(epicKey)) {
@@ -120,7 +121,6 @@ public class InMemoryTaskManager implements TaskManager {
                 ArrayList<Integer> listKeys = epic.getSubtasksList();
                 if (listKeys.contains(identifier)) {
                     listKeys.remove(identifier);
-                    epic.setSubtasksList(listKeys);
                     setNewStatusForEpic(epic);
                     historyManager.remove(identifier);
                     mapSubtasks.remove(identifier);
@@ -200,6 +200,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (!(mapEpics.isEmpty()) && (mapEpics.containsKey(id))) {
             removeEpicByIdentifier(id);
             mapEpics.put(id, epic);
+            return epic;
         }
         return null;
     }
@@ -275,6 +276,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public <T extends Task> void setHistory(T task) {
         historyManager.add(task);
+    }
+
+    protected void setCounter(int countFrom) {
+        counter = countFrom;
     }
 
     private int count() {

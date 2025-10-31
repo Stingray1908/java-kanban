@@ -26,7 +26,7 @@ public class Subtask extends Task {
     }
 
     public String toString() {
-        return super.toString() + ", id эпика - " + epicKey;
+        return super.toString() + String.format(", ID Epic: %d", epicKey);
     }
 }
 

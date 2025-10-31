@@ -21,20 +21,20 @@ class InMemoryTaskManagerTest {
 
     private <T extends Task> void upDataTask(T newTask) {
         if (newTask instanceof Epic) {
-            manager.upDateEpic((Epic) newTask) ;
+            manager.upDateEpic((Epic) newTask);
         } else if (newTask instanceof Subtask) {
             manager.upDateSubtask((Subtask) newTask);
         } else {
-                manager.upDateTask(newTask);
+            manager.upDateTask(newTask);
         }
     }
 
     @BeforeEach
     void beforeEach() {
         manager = Managers.getDefault();
-         task = manager.createNewTasks(new Task("Task"));
-         epic = manager.createNewEpic(new Epic("Epic"));
-         subtask = manager.createNewSubtask(new Subtask("Subtask", epic.getId()));
+        task = manager.createNewTasks(new Task("Task"));
+        epic = manager.createNewEpic(new Epic("Epic"));
+        subtask = manager.createNewSubtask(new Subtask("Subtask", epic.getId()));
     }
 
     @Test
@@ -90,7 +90,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldUpDateSubtaskAndReturnRightName() {
-        upDataTask(new Subtask("NEW Subtask", Status.NEW, epic.getId(),subtask.getId()));
+        upDataTask(new Subtask("NEW Subtask", Status.NEW, epic.getId(), subtask.getId()));
         String name = manager.getSubtaskByIdentifier(subtask.getId()).getName();
 
         assertEquals(1, manager.getListSubtasks().size());
@@ -142,7 +142,6 @@ class InMemoryTaskManagerTest {
 
         assertTrue(manager.getHistory().isEmpty());
     }
-
 
 
 }
