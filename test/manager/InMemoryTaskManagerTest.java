@@ -1,6 +1,5 @@
 package manager;
 
-import tasks.Epic;
 import tasks.Status;
 import tasks.Subtask;
 import tasks.Task;
@@ -8,139 +7,72 @@ import tasks.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
+class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
-    public static TaskManager manager;
-    static Task task;
-    static Epic epic;
-    static Subtask subtask;
-
-    private <T extends Task> void upDataTask(T newTask) {
-        if (newTask instanceof Epic) {
-            manager.upDateEpic((Epic) newTask);
-        } else if (newTask instanceof Subtask) {
-            manager.upDateSubtask((Subtask) newTask);
-        } else {
-            manager.upDateTask(newTask);
-        }
+    @Override
+    InMemoryTaskManager createManager() {
+        return Managers.getDefault();
     }
 
     @BeforeEach
     void beforeEach() {
-        manager = Managers.getDefault();
-        task = manager.createNewTasks(new Task("Task"));
-        epic = manager.createNewEpic(new Epic("Epic"));
-        subtask = manager.createNewSubtask(new Subtask("Subtask", epic.getId()));
+        super.beforeEach();
     }
 
     @Test
-    void shouldNotChangeTaskAfterHadCreated() {
-        Task testTask = new Task("Task");
-        assertEquals(testTask.getName(), task.getName());
-        assertEquals(testTask.getStatus(), task.getStatus());
+    void shouldReturnTreeSetListIfTasksHaveCorrectLocalDateTime() {
+        TreeSet<Task> set = manager.getPrioritizedTasks();
+        assertEquals(5, set.size());
     }
 
     @Test
-    void shouldNotChangeEpicAfterHadCreated() {
-        Epic testEpic = new Epic("Epic");
-        assertEquals(testEpic.getName(), epic.getName());
-        assertEquals(testEpic.getStatus(), epic.getStatus());
+    void shouldRightlyCountsEpicEndTime_When3Subtasks() {
+        Subtask lastSub = manager.createNewSubtask(new Subtask(
+                "Subtask_6", LocalDateTime.of(2020, 6, 6, 6, 6, 6), duration_10m, 1));
+        LocalDateTime time = subtask_2.getEndTime().plus(subtask_3.getDuration().plus(lastSub.getDuration()));
+
+        assertEquals(time, epic_1.getEndTime());
     }
 
     @Test
-    void shouldNotChangeSubtaskAfterHadCreated() {
-        Subtask testSubtask = new Subtask("Subtask", epic.getId());
-        assertEquals(testSubtask.getName(), subtask.getName());
-        assertEquals(testSubtask.getStatus(), subtask.getStatus());
+    void shouldNotAddTasksWithEqualStartTime_When5diffStartTimesAnd3Equals() {
+        TreeSet<Task> set = manager.getPrioritizedTasks();
+        subtask_List = manager.getListSubtasks();
+
+        manager.createNewTask(task_0);
+        manager.createNewSubtask(subtask_2);
+        manager.createNewSubtask(subtask_3);
+
+        TreeSet<Task> theSame = manager.getPrioritizedTasks();
+        List<Subtask> list = manager.getListSubtasks();
+
+        assertEquals(set, theSame);
+        assertNotEquals(list, subtask_List);
     }
 
     @Test
-    void shouldHaveTaskInManagerList() {
-        assertTrue(manager.getListTasks().contains(task), "Список задач все еще пуст");
-    }
+    void shouldAddUpDatedTaskIfStartTimeUnique_When3EqualStartTimesGetUnique() {
+        TreeSet<Task> set = manager.getPrioritizedTasks();
+        subtask_List = manager.getListSubtasks();
 
-    @Test
-    void shouldHaveEpicInManagerList() {
-        assertTrue(manager.getListEpics().contains(epic), "Список задач все еще пуст");
-    }
+        t_0 = manager.createNewTask(task_0);
+        s_2 = manager.createNewSubtask(subtask_2);
+        Subtask s_3 = manager.createNewSubtask(subtask_3);
 
-    @Test
-    void shouldHaveSubtaskInManagerList() {
-        assertTrue(manager.getListSubtasks().contains(subtask), "Список задач все еще пуст");
-    }
+        manager.upDateTask(new Task("task_0", Status.DONE, t_0.getId()));
+        manager.upDateTask(new Subtask(
+                "Subtask_2", Status.DONE, s_2.getId(), LocalDateTime.of(2021, 3, 3, 3, 3, 3), duration_10m, 1));
+        manager.upDateTask(new Subtask(
+                "Subtask_3", Status.DONE, s_3.getId(), LocalDateTime.of(2021, 4, 4, 4, 4, 4), duration_10m, 1));
 
-    @Test
-    void shouldReturnTaskByIdentifier() {
-        assertEquals(task, manager.getTaskByIdentifier(task.getId()));
-    }
-
-    @Test
-    void shouldReturnEpicByIdentifier() {
-        assertEquals(epic, manager.getEpicByIdentifier(epic.getId()));
-    }
-
-    @Test
-    void shouldReturnSubtaskByIdentifier() {
-        assertEquals(subtask, manager.getSubtaskByIdentifier(subtask.getId()));
-    }
-
-    @Test
-    void shouldUpDateSubtaskAndReturnRightName() {
-        upDataTask(new Subtask("NEW Subtask", Status.NEW, epic.getId(), subtask.getId()));
-        String name = manager.getSubtaskByIdentifier(subtask.getId()).getName();
-
-        assertEquals(1, manager.getListSubtasks().size());
-        assertEquals("NEW Subtask", name);
-    }
-
-    @Test
-    void shouldUpDateEpicWithoutProblem() {
-        upDataTask(new Epic("NEW Epic", epic.getId()));
-        String name = manager.getEpicByIdentifier(epic.getId()).getName();
-
-        assertEquals(1, manager.getListEpics().size());
-        assertEquals("NEW Epic", name);
-    }
-
-    @Test
-    void shouldUpDateTaskWithoutProblem() {
-        upDataTask(new Task("NEW Task", Status.NEW, task.getId()));
-        String name = manager.getTaskByIdentifier(task.getId()).getName();
-
-        assertEquals(1, manager.getListTasks().size());
-        assertEquals("NEW Task", name);
-    }
-
-    @Test
-    void shouldCheckOutThatEpicDoNotKeepDeletedMeaning() {
-        ArrayList<Subtask> arr = manager.getEpicSubtasks(epic.getId());
-        manager.clearSubtasks();
-
-        assertNotEquals(arr.size(), manager.getEpicSubtasks(epic.getId()).size());
-    }
-
-    @Test
-    void shouldSaveTheSameDateInHistoryManagerAfterUsingSearchByIdentifier() {
-        Task taskString = manager.getTaskByIdentifier(task.getId());
-        Epic epicString = manager.getEpicByIdentifier(epic.getId());
-        Subtask subtaskString = manager.getSubtaskByIdentifier(subtask.getId());
-
-        assertEquals(3, manager.getHistory().size());
-        assertEquals(taskString.toString(), task.toString(), "данные изменились");
-        assertEquals(epicString.toString(), epic.toString(), "данные изменились");
-        assertEquals(subtaskString.toString(), subtask.toString(), "данные изменились");
-    }
-
-    @Test
-    void shouldCorrectlyDeleteDateFromHistoryManagerAfterDeletingThemFromInMemoryTaskManager() {
-        manager.clearEpics();
-        manager.clearTasks();
-
-        assertTrue(manager.getHistory().isEmpty());
+        TreeSet<Task> theSame = manager.getPrioritizedTasks();
+        assertEquals(set, theSame);
     }
 
 

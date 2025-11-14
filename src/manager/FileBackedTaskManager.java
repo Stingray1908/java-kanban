@@ -1,11 +1,14 @@
 package manager;
 
 import exceptions.ManagerSaveException;
+
 import java.io.*;
 import java.nio.file.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
-import tasks.*;
 
+import tasks.*;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -29,8 +32,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Task createNewTasks(Task task) {
-        Task parent = super.createNewTasks(task);
+    public Task createNewTask(Task task) {
+        Task parent = super.createNewTask(task);
         save();
         return parent;
     }
@@ -78,7 +81,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public boolean removeSubtaskByIdentifier(Integer identifier) {
+    public boolean removeSubtaskByIdentifier(int identifier) {
         boolean parent = super.removeSubtaskByIdentifier(identifier);
         save();
         return parent;
@@ -96,9 +99,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             bw.write(hat);
 
             for (Task task : list) {
-                String string = taskToString(task);
                 bw.newLine();
-                bw.append(string);
+                bw.append(taskToString(task));
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Проблемы с сохранением данных", e);
@@ -112,8 +114,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         Types type = Types.getType(task);
         String name = task.getName();
         Status status = task.getStatus();
+        String startTime = task.getStartTime().format(Task.START_TIME_FORMATTER);
+        long duration = task.getDuration().toMinutes();
 
-        String string = String.format("%d,%s,%s,%s", id, type, name, status);
+        String string = String.format("%d,%s,%s,%s,%s,%d", id, type, name, status, startTime, duration);
 
         switch (type) {
             case EPIC:
@@ -132,12 +136,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public Task fromString(String line) {
         String[] features = line.split(",");
-
         int id = Integer.parseInt(features[0]);
         Types type;
         String name = features[2];
-        Status status = Status.NEW;
-        Task task = null;
+        Task task;
 
         if (features[1].equals("TASK")) {
             type = Types.TASK;
@@ -147,13 +149,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             return new Epic(name, id);
         }
 
-        if (features[3].equals("DONE")) status = Status.DONE;
-        if (features[3].equals("IN_PROGRESS")) status = Status.IN_PROGRESS;
+        Status status = Status.NEW;
+        LocalDateTime startTime = LocalDateTime.parse(features[4], Task.START_TIME_FORMATTER);
+        Duration duration = Duration.ofMinutes(Integer.parseInt(features[5]));
 
-        if (type == Types.TASK) task = new Task(name, status, id);
-        if (type == Types.SUBTASK) {
-            int idEpic = Integer.parseInt(features[4]);
-            task = new Subtask(name, status, idEpic, id);
+        if (features[3].equals("DONE")) {
+            status = Status.DONE;
+        } else if (features[3].equals("IN_PROGRESS")) {
+            status = Status.IN_PROGRESS;
+        }
+
+        if (type == Types.TASK) {
+            task = new Task(name, status, id, startTime, duration);
+        } else {
+            int idEpic = Integer.parseInt(features[6]);
+            task = new Subtask(name, status, id, startTime, duration, idEpic);
         }
         return task;
     }
@@ -165,14 +175,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             br.readLine();
             String line;
             int maxID = 0;
-
             while ((line = br.readLine()) != null) {
                 Task task = manager.fromString(line);
                 int id = task.getId();
                 manager.setCounter(id);
 
                 if (id > maxID) maxID = id;
-
                 if (task instanceof Epic) {
                     manager.createNewEpic((Epic) task);
                     continue;
@@ -180,11 +188,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
                 Status status = task.getStatus();
                 Task anotherTask;
-
                 if (task instanceof Subtask) {
                     anotherTask = manager.createNewSubtask((Subtask) task);
                 } else {
-                    anotherTask = manager.createNewTasks(task);
+                    anotherTask = manager.createNewTask(task);
                 }
                 if (status != Status.NEW) anotherTask.setStatus(status);
             }
