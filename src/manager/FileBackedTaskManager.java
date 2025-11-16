@@ -107,7 +107,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-
     private String taskToString(Task task) {
 
         int id = task.getId();

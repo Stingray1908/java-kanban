@@ -30,6 +30,5 @@ class EpicTest {
     @Test
     void shouldDoNotHaveNullPointerExceptionWhenToStringWithEpicNameNull() {
         Epic epicTest = new Epic(null);
-        System.out.println(epicTest);
     }
 }

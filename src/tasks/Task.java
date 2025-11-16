@@ -108,10 +108,9 @@ public class Task {
         return this.startTime.plus(this.duration);
     }
 
-    protected void setStartTime(LocalDateTime startTime) {
-        if (startTime == null) return;
-        if (this.startTime == DEFAULT_DATE_TIME) this.startTime = startTime;
-        if (startTime.isBefore(this.startTime)) this.startTime = startTime;
+    public void setStartTime(LocalDateTime startTime) {
+        if (startTime == null || startTime.isBefore(DEFAULT_DATE_TIME)) return;
+        this.startTime = startTime;
     }
 
     public void setDuration(Duration duration) {

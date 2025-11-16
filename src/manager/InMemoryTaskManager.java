@@ -3,6 +3,7 @@ package manager;
 import tasks.*;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -251,21 +252,25 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void setTimeForEpic(Epic epic) {
-        ArrayList<Subtask> al = getEpicSubtasks(epic.getId());
+        if (epic.getSubtasksList().isEmpty()) return;
 
-        if (al.isEmpty()) return;
-        Optional<LocalDateTime> opt = al.stream()
-                .map(Task::getStartTime)
-                .filter(l -> l != Task.DEFAULT_DATE_TIME)
-                .min(LocalDateTime::compareTo);
+        LocalDateTime startTime = Task.DEFAULT_DATE_TIME;
+        Duration duration = Duration.ZERO;
+        LocalDateTime endTime = Task.DEFAULT_DATE_TIME;
 
-        if (opt.isEmpty()) return;
-        Duration duration = al.stream()
-                .map(Task::getDuration)
-                .reduce(Duration.ZERO, Duration::plus);
+        for (Subtask s : getEpicSubtasks(epic.getId())) {
+            LocalDateTime start = s.getStartTime();
 
-        epic.setStartTime(opt.get());
+            if (start.equals(Task.DEFAULT_DATE_TIME)) continue;
+            if (startTime.equals(Task.DEFAULT_DATE_TIME) || start.isBefore(startTime)) startTime = start;
+
+            LocalDateTime end = s.getEndTime();
+            if (end.isAfter(endTime)) endTime = end;
+            duration = duration.plus(s.getDuration());
+        }
+        epic.setStartTime(startTime);
         epic.setDuration(duration);
+        epic.setEndTime(endTime);
     }
 
     private boolean isTimeCrossingTwoTasks(Task t1, Task t2) {
