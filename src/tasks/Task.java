@@ -6,8 +6,6 @@ import java.util.Objects;
 
 
 public class Task {
-    // сделать конструктор который просто меняет статус
-
 
     private final String name;
     private Status status;
