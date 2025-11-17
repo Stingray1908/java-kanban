@@ -8,17 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
-    ArrayList<Task> getListTasks();
 
-    ArrayList<Epic> getListEpics();
+    Task createNewTask(Task task);
 
-    ArrayList<Subtask> getListSubtasks();
+    Epic createNewEpic(Epic epic);
 
-    boolean clearTasks();
+    Subtask createNewSubtask(Subtask subtask);
 
-    boolean clearEpics();
+    Task upDateTask(Task task);
 
-    boolean clearSubtasks();
+    Epic upDateEpic(Epic epic);
+
+    Subtask upDateSubtask(Subtask subtask);
 
     Task getTaskByIdentifier(int identifier);
 
@@ -26,25 +27,25 @@ public interface TaskManager {
 
     Subtask getSubtaskByIdentifier(int identifier);
 
+    ArrayList<Subtask> getEpicSubtasks(int epicID);
+
+    ArrayList<Task> getListTasks();
+
+    ArrayList<Epic> getListEpics();
+
+    ArrayList<Subtask> getListSubtasks();
+
     boolean removeTaskByIdentifier(int identifier);
 
     boolean removeEpicByIdentifier(int identifier);
 
-    boolean removeSubtaskByIdentifier(Integer identifier);
+    boolean removeSubtaskByIdentifier(int identifier);
 
-    Task createNewTasks(Task task);
+    boolean clearTasks();
 
-    Task upDateTask(Task task);
+    boolean clearEpics();
 
-    Epic createNewEpic(Epic epic);
-
-    Epic upDateEpic(Epic epic);
-
-    Subtask createNewSubtask(Subtask subtask);
-
-    Subtask upDateSubtask(Subtask subtask);
-
-    ArrayList<Subtask> getEpicSubtasks(int epicID);
+    boolean clearSubtasks();
 
     List<Task> getHistory();
 

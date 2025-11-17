@@ -1,18 +1,28 @@
 package tasks;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
 
     private int epicKey;
 
     public Subtask(String name, int epicKey) {
-        super(name);
-        this.epicKey = epicKey;
+        this(name, Status.NEW, 0, null, null, epicKey);
     }
 
-    public Subtask(String name, Status status, int epicKey, int id) {
-        super(name, status, id);
-        this.epicKey = epicKey;
-        this.setDescription();
+    public Subtask(String name, LocalDateTime startTime, Duration duration, int epicKey) {
+        this(name, Status.NEW, 0, startTime, duration, epicKey);
+    }
+
+    public Subtask(String name, Status status, int id, int epicKey) {
+        this(name, status, id, null, null, epicKey);
+    }
+
+    public Subtask(String name, Status status, int id, LocalDateTime startTime, Duration duration, int epicKey) {
+        super(name, status, id, startTime, duration);
+        setEpicKey(epicKey);
+        setDescription();
     }
 
     public int getEpicKey() {
@@ -20,13 +30,11 @@ public class Subtask extends Task {
     }
 
     public void setEpicKey(int epicKey) {
-        if (!(epicKey == this.getId())) {
-            this.epicKey = epicKey;
-        }
+        if (epicKey != this.getId()) this.epicKey = epicKey;
     }
 
     public String toString() {
-        return super.toString() + String.format(", ID Epic: %d", epicKey);
+        return super.toString() + String.format(", epic:%d", epicKey);
     }
 }
 

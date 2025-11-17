@@ -1,4 +1,5 @@
 import manager.FileBackedTaskManager;
+import manager.InMemoryTaskManager;
 import tasks.Epic;
 import tasks.Status;
 import tasks.Subtask;
@@ -13,27 +14,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] arg) throws IOException {
+    public static void main(String[] arg) throws IOException /*throws IOException*/ {
         Path path = Files.createTempFile("Temp_File", ".csv");
-        FileBackedTaskManager manager = new FileBackedTaskManager(path);
+        InMemoryTaskManager manager = new InMemoryTaskManager();
 
-        manager.createNewTasks(new Task("убрать вещи"));
-        manager.createNewTasks(new Task("постирать бельё"));
+        manager.createNewTask(new Task("убрать вещи", null, null));
+        manager.createNewTask(new Task("постирать бельё", null, null));
 
         manager.createNewEpic(new Epic("Переезд"));
         manager.createNewEpic(new Epic("Стройка"));
 
-        manager.createNewSubtask(new Subtask("собрать вещи", 2));
-        manager.createNewSubtask(new Subtask("купить билет", 2));
-        manager.createNewSubtask(new Subtask("залить фундамент", 3));
+        manager.createNewSubtask(new Subtask("собрать вещи", null, null, 2));
+        manager.createNewSubtask(new Subtask("купить билет", null, null, 2));
+        manager.createNewSubtask(new Subtask("залить фундамент", null, null, 3));
 
-        manager.upDateSubtask(new Subtask("собрать вещи", Status.DONE, 2, 4));
+        manager.upDateSubtask(new Subtask("собрать вещи", Status.DONE, 2, null, null, 4));
 
         manager.removeTaskByIdentifier(0);
         manager.removeTaskByIdentifier(1);
 
-        manager.createNewTasks(new Task("убрать вещи"));
-        manager.createNewTasks(new Task("постирать бельё"));
+        manager.createNewTask(new Task("убрать вещи", null, null));
+        manager.createNewTask(new Task("постирать бельё", null, null));
+
+        System.out.println(manager.getListEpics());
+        System.out.println(manager.getListSubtasks());
 
         try (BufferedReader br = new BufferedReader(new FileReader(path.toFile()))) {
             List<String> list = new ArrayList<>();
@@ -50,18 +54,16 @@ public class Main {
 
         manager = FileBackedTaskManager.loadFromFile(path);
 
-        manager.createNewTasks(new Task("сделать ТЗ 7"));
-        manager.createNewTasks(new Task("в этом году"));
+        manager.createNewTask(new Task("сделать ТЗ 7", null, null));
+        manager.createNewTask(new Task("в этом году", null, null));
 
-        manager.createNewTasks(new Task("сделать ТЗ 8"));
-        manager.createNewTasks(new Task("в новом году"));
+        manager.createNewTask(new Task("сделать ТЗ 8", null, null));
+        manager.createNewTask(new Task("в новом году", null, null));
 
         List<Task> listT = manager.getListTasks();
         listT.addAll(manager.getListEpics());
         listT.addAll(manager.getListSubtasks());
-
-        System.out.println(listT);
-
-
+        System.out.println("'''''''''''''''''''''''");
+        System.out.println(manager.getPrioritizedTasks());
     }
 }

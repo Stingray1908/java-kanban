@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubtaskTest {
-    Subtask subtask_1 = new Subtask("Name", Status.NEW, 0, 1);
+    Subtask subtask_1 = new Subtask("Name", Status.NEW, 1, 0);
 
     @Test
     void shouldHoldSaveEpicKeyAgainstEpicKeyBecomesTheSameSubtaskId() {
