@@ -1,6 +1,8 @@
 package manager;
 
+import exceptions.NotAcceptableException;
 import tasks.*;
+import exceptions.NotFoundException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -14,13 +16,16 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Task> mapTasks = new HashMap<>();
     private final HashMap<Integer, Epic> mapEpics = new HashMap<>();
     private final HashMap<Integer, Subtask> mapSubtasks = new HashMap<>();
-    private final TreeSet<Task> taskSet = new TreeSet<>(Comparator.comparing(Task::getStartTime)); //orderedTasks
+    private final TreeSet<Task> taskSet = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     private int counter = 0;
 
     @Override
     public Task createNewTask(Task task) {
         if (task != null) {
+            task.setId(-1);
+            if (isTimeCrossingTaskToTreeSet(task))
+                throw new NotAcceptableException("TaskCrossingTreeSet when createNewTask");
             int id = count();
             task.setId(id);
             task.setStatus(Status.NEW);
@@ -43,79 +48,90 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Subtask createNewSubtask(Subtask subtask) {
         if (subtask != null) {
+            subtask.setId(-1);
+            if (isTimeCrossingTaskToTreeSet(subtask))
+                throw new NotAcceptableException("TaskCrossingTreeSet when createNewSubtask");
             int id = count();
             subtask.setId(id);
             Epic epic;
-            if ((epic = mapEpics.get(subtask.getEpicKey())) == null) return null;
-            ArrayList<Integer> subtasksList = epic.getSubtasksList();
-            subtasksList.add(id);
-            mapSubtasks.put(id, subtask);
-            setNewStatusForEpic(epic);
-            setTimeForEpic(epic);
-            addToTaskSet(subtask);
+            if ((epic = mapEpics.get(subtask.getEpicKey())) != null) {
+                ArrayList<Integer> subtasksList = epic.getSubtasksList();
+                subtasksList.add(id);
+                mapSubtasks.put(id, subtask);
+                addToTaskSet(subtask);
+                setNewStatusForEpic(epic);
+                setTimeForEpic(epic);
+                return subtask;
+            }
         }
-        return subtask;
+        throw new NotFoundException();
     }
 
     @Override
     public Task upDateTask(Task upTask) {
-        if (upTask != null) {
-            int id = upTask.getId();
-            Task oldTask;
-            if ((oldTask = mapTasks.get(id)) == null) return null;
-            taskSet.remove(oldTask);
-            addToTaskSet(upTask);
-            mapTasks.put(id, upTask);
-        }
+        if (upTask == null) throw new NotFoundException("UpTask = null");
+        int id = upTask.getId();
+        if (!mapTasks.containsKey(id)) throw new NotFoundException("Not Task with id:" + id);
+        if (isTimeCrossingTaskToTreeSet(upTask))
+            throw new NotAcceptableException("TaskCrossingTreeSet when upDateTask");
+        addToTaskSet(upTask);
+        mapTasks.put(id, upTask);
         return upTask;
     }
 
     @Override
     public Epic upDateEpic(Epic upEpic) {
-        if (upEpic != null) {
-            int id = upEpic.getId();
-            if (!removeEpicByIdentifier(id)) return null;
-            mapEpics.put(id, upEpic);
-        }
+        if (upEpic == null) throw new NotFoundException("upEpic = null");
+        int id = upEpic.getId();
+        if (!mapEpics.containsKey(id)) throw new NotFoundException("Not Task with id:" + id);
+        removeEpicByIdentifier(id);
+        mapEpics.put(id, upEpic);
         return upEpic;
     }
 
     @Override
     public Subtask upDateSubtask(Subtask upSub) {
-        if (upSub != null) {
-            Epic epic;
-            Subtask oldSubtask;
-            int epicID = upSub.getEpicKey();
-            int newSubID = upSub.getId();
+        if (upSub == null) throw new NotFoundException("upSubtask = null");
+        Epic epic;
+        int epicID = upSub.getEpicKey();
+        int newSubID = upSub.getId();
 
-            if ((epic = mapEpics.get(epicID)) == null) return null;
-            if ((oldSubtask = mapSubtasks.get(newSubID)) == null) return null;
+        if ((epic = mapEpics.get(epicID)) == null)
+            throw new NotFoundException("upDateSubtask, Not Epic with id:" + newSubID);
 
-            taskSet.remove(oldSubtask);
-            mapSubtasks.put(newSubID, upSub);
-            setNewStatusForEpic(epic);
-            setTimeForEpic(epic);
-            addToTaskSet(upSub);
-        }
+        if (!mapSubtasks.containsKey(newSubID))
+            throw new NotFoundException("upDateSubtask, Not Subtask with id:" + newSubID);
+
+        if (isTimeCrossingTaskToTreeSet(upSub))
+            throw new NotAcceptableException("TimeCrossingTaskToTreeSet when upDateSubtask");
+
+        addToTaskSet(upSub);
+        mapSubtasks.put(newSubID, upSub);
+        setNewStatusForEpic(epic);
+        setTimeForEpic(epic);
         return upSub;
     }
 
     @Override
     public Task getTaskByIdentifier(int id) {
         Task task;
-        if ((task = mapTasks.get(id)) != null) setHistory(task);
+        if ((task = mapTasks.get(id)) == null) throw new NotFoundException("when getTaskById:" + id);
+        setHistory(task);
         return task;
     }
 
     @Override
     public Epic getEpicByIdentifier(int id) {
-        return mapEpics.get(id);
+        Epic epic;
+        if ((epic = mapEpics.get(id)) == null) throw new NotFoundException("when getEpicById:" + id);
+        return epic;
     }
 
     @Override
     public Subtask getSubtaskByIdentifier(int id) {
         Subtask subtask;
-        if ((subtask = mapSubtasks.get(id)) != null) setHistory(subtask);
+        if ((subtask = mapSubtasks.get(id)) == null) throw new NotFoundException("when getSubtaskById:" + id);
+        setHistory(subtask);
         return subtask;
     }
 
@@ -146,7 +162,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public boolean removeTaskByIdentifier(int id) {
-        if (mapTasks.remove(id) != null) {
+        Task t;
+        if ((t = mapTasks.remove(id)) != null) {
+            taskSet.remove(t);
             historyManager.remove(id);
             return true;
         }
@@ -273,19 +291,18 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private boolean isTimeCrossingTwoTasks(Task t1, Task t2) {
-        if (t1.getStartTime().isAfter(t2.getEndTime()) ||
-                t2.getStartTime().isAfter(t1.getEndTime())) return false;
-        return true;
+        return !t1.getStartTime().isAfter(t2.getEndTime()) &&
+                !t2.getStartTime().isAfter(t1.getEndTime());
     }
 
     private boolean isTimeCrossingTaskToTreeSet(Task task) {
-        return taskSet.stream()
-                .anyMatch(t1 -> isTimeCrossingTwoTasks(task, t1));
+        for (Task t : taskSet) {
+            if (isTimeCrossingTwoTasks(t, task) && !t.equals(task)) return true;
+        }
+        return false;
     }
 
     private void addToTaskSet(Task task) {
-        if (task.getStartTime() == Task.DEFAULT_DATE_TIME ||
-                isTimeCrossingTaskToTreeSet(task)) return;
         taskSet.add(task);
     }
 }

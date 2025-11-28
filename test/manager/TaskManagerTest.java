@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-abstract class TaskManagerTest<T extends TaskManager> {
+public abstract class TaskManagerTest<T extends TaskManager> {
 
     final public static DateTimeFormatter END_TIME_FORMATTER = Task.START_TIME_FORMATTER;
     protected T manager;
@@ -34,6 +34,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
     public static Subtask subtask_3;
     public static Subtask subtask_6;
     public static LocalDateTime start_1;
+    public static LocalDateTime start_2;
+    public static LocalDateTime start_3;
+    public static LocalDateTime start_4;
+    public static LocalDateTime start_5;
     public static Duration duration_10m;
     public static Duration duration_30m;
 
@@ -41,10 +45,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
     public static List<Subtask> subtask_List;
     public static List<Integer> int_List;
 
-    abstract T createManager();
+    public abstract T createManager();
 
     public void upDateTask_t_0() {
-        t_0 = manager.upDateTask(new Task("Task", Status.DONE, task_0.getId(), start_1, Duration.ZERO));
+        t_0 = manager.upDateTask(new Task("Task", Status.DONE, task_0.getId(), start_3, Duration.ZERO));
 
     }
 
@@ -54,7 +58,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void upDateSubtask_s_2() {
         s_2 = manager.upDateSubtask(new Subtask(
-                "Subtask", Status.DONE, subtask_2.getId(), start_1, Duration.ZERO, epic_1.getId()));
+                "Subtask", Status.DONE, subtask_2.getId(), start_4, Duration.ZERO, epic_1.getId()));
     }
 
     public boolean isTaskHaveAnyNullValues(Task task) {
@@ -79,8 +83,13 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @BeforeEach
     void beforeEach() {
+
         manager = createManager();
-        start_1 = LocalDateTime.of(2020, 1, 1, 0, 0, 0);
+        start_1 = LocalDateTime.of(1, 1,1, 0, 0, 0);
+        start_2 = LocalDateTime.of(2, 2, 2, 0, 0, 0);
+        start_3 = LocalDateTime.of(3, 3, 3, 0, 0, 0);
+        start_4 = LocalDateTime.of(4, 4, 4, 0, 0, 0);
+        start_5 = LocalDateTime.of(5, 5, 5, 0, 0, 0);
 
         duration_10m = Duration.ofMinutes(10);
         duration_30m = Duration.ofMinutes(30);
@@ -118,14 +127,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
         Epic epic = manager.createNewEpic(new Epic("Epic_5"));
         assertTrue(isTasksFullyEquals(task_0, new Task("Task_0", start_1, duration_10m)));
         assertTrue(isTasksFullyEquals(epic, new Epic("Epic_5", epic.getId())));
-        assertTrue(isTasksFullyEquals(subtask_6, new Subtask("Subtask_6", Status.NEW, subtask_6.getId(), start_1, duration_10m, 5)));
+        assertTrue(isTasksFullyEquals(subtask_6, new Subtask("Subtask_6", Status.NEW, subtask_6.getId(), start_2, duration_10m, 5)));
     }
 
     @Test
     void shouldInitializeAllValues_WhenMethodsCreateNew_DoNotHaveValidArgs() {
-        task_0 = manager.createNewTask(new Task(null, null, 0, null, null));
+        task_0 = manager.createNewTask(new Task(null, null, 0, start_3, null));
         epic_1 = manager.createNewEpic(new Epic(null, 0));
-        subtask_2 = manager.createNewSubtask(new Subtask(null, null, 0, null, null, 1));
+        subtask_2 = manager.createNewSubtask(new Subtask(null, null, 0, start_4, null, 1));
 
         assertFalse(
                 isTaskHaveAnyNullValues(task_0) &&
@@ -152,8 +161,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldUpDateEitherTasksFieldsAndBeEqual_WhenMethodUpDate_NullData() {
-        t_0 = manager.upDateTask(new Task(null, null, 0, null, null));
-        s_2 = manager.upDateSubtask(new Subtask(null, null, 2, null, null, 1));
+        t_0 = manager.upDateTask(new Task(null, null, 0, start_3, null));
+        s_2 = manager.upDateSubtask(new Subtask(null, null, 2, start_4, null, 1));
 
         assertEquals(task_0, t_0);
         assertEquals(subtask_2, s_2);
@@ -170,17 +179,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldSetEpicStatusINPROGRESS_WhenEpicSetStatusMethod_DifferentSubtasksStatus() {
-        manager.upDateSubtask(new Subtask("Subtask", Status.DONE, subtask_2.getId(), epic_1.getId()));
-        manager.upDateSubtask(new Subtask("Subtask", Status.IN_PROGRESS, subtask_6.getId(), epic_5.getId()));
+        manager.upDateSubtask(new Subtask("Subtask", Status.DONE, subtask_2.getId(), start_3, duration_10m, epic_1.getId()));
+        manager.upDateSubtask(new Subtask("Subtask", Status.IN_PROGRESS, subtask_6.getId(), start_4, duration_10m, epic_5.getId()));
         assertEquals(Status.IN_PROGRESS, epic_1.getStatus());
         assertEquals(Status.IN_PROGRESS, epic_5.getStatus());
     }
 
     @Test
     void shouldSetEpicStatusDONE_WhenEpicSetStatusMethod_AllSubtasksDONE() {
-        manager.upDateSubtask(new Subtask("Subtask", Status.DONE, subtask_2.getId(), epic_1.getId()));
-        manager.upDateSubtask(new Subtask("Subtask", Status.DONE, subtask_3.getId(), epic_1.getId()));
-        manager.upDateSubtask(new Subtask("Subtask", Status.DONE, subtask_6.getId(), epic_5.getId()));
+        manager.upDateSubtask(new Subtask("Subtask", Status.DONE, subtask_2.getId(), start_3, duration_10m, epic_1.getId()));
+        manager.upDateSubtask(new Subtask("Subtask", Status.DONE, subtask_3.getId(), start_4, duration_10m,epic_1.getId()));
+        manager.upDateSubtask(new Subtask("Subtask", Status.DONE, subtask_6.getId(), start_5, duration_10m, epic_5.getId()));
         assertEquals(Status.DONE, epic_1.getStatus());
         assertEquals(Status.DONE, epic_5.getStatus());
     }
