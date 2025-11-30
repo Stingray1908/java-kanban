@@ -14,14 +14,14 @@ public class Task {
 
     public static final DateTimeFormatter START_TIME_FORMATTER =
             DateTimeFormatter.ofPattern("'['yyyy.MM.dd-HH:mm:ss']'");
-    public static final  LocalDateTime DEFAULT_DATE_TIME =
+    public static final LocalDateTime DEFAULT_DATE_TIME =
             LocalDateTime.of(1, 1, 1, 0, 0, 0);
 
     private LocalDateTime startTime;
     private Duration duration;
 
     public Task(String name) {
-        this(name, Status.NEW, 0, null, null);
+        this(name, Status.NEW, -1, null, null);
     }
 
     public Task(String name, LocalDateTime startTime, Duration duration) {
@@ -86,7 +86,7 @@ public class Task {
     }
 
     public void setId(int id) {
-        if (id > -1) this.id = id;
+        this.id = id;
         setDescription();
     }
 

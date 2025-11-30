@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     @Override
-    InMemoryTaskManager createManager() {
+    public InMemoryTaskManager createManager() {
         return Managers.getDefault();
     }
 
@@ -34,7 +34,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
     @Test
     void shouldRightlyCountsEpicEndTime_When3Subtasks() {
         Subtask lastSub = manager.createNewSubtask(new Subtask(
-                "Subtask_6", LocalDateTime.of(2020, 6, 6, 6, 6, 6), duration_10m, 1));
+                "Subtask_6", LocalDateTime.of(2021, 6, 6, 6, 6, 6), duration_10m, 1));
         LocalDateTime time = subtask_2.getEndTime().plus(subtask_3.getDuration().plus(lastSub.getDuration()));
 
         assertEquals(time, epic_1.getEndTime());
@@ -66,9 +66,9 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         Subtask s_3 = manager.createNewSubtask(subtask_3);
 
         manager.upDateTask(new Task("task_0", Status.DONE, t_0.getId()));
-        manager.upDateTask(new Subtask(
+        manager.upDateSubtask(new Subtask(
                 "Subtask_2", Status.DONE, s_2.getId(), LocalDateTime.of(2021, 3, 3, 3, 3, 3), duration_10m, 1));
-        manager.upDateTask(new Subtask(
+        manager.upDateSubtask(new Subtask(
                 "Subtask_3", Status.DONE, s_3.getId(), LocalDateTime.of(2021, 4, 4, 4, 4, 4), duration_10m, 1));
 
         TreeSet<Task> theSame = manager.getPrioritizedTasks();
